@@ -1,5 +1,5 @@
 # ToggleTag
-An SCP:SL ServerMod plugin which lets you persistently toggle your staff tag.
+An SCP:SL ServerMod plugin which lets you persistently toggle your staff tag using the default hidetag and showtag commands. You have to use the RA console, not the local one.
 
 Requires you to enable the text based admin commands or use scpdiscord.
 
