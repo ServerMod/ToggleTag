@@ -3,6 +3,8 @@ An SCP:SL ServerMod plugin which lets you persistently toggle your staff tag usi
 
 Requires you to enable the text based admin commands or use scpdiscord.
 
+Now also persistently toggles overwatch.
+
 ## Installation
 
 Extract the included zip and place the contents in `sm_plugins`.
