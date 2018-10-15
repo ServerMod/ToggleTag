@@ -20,7 +20,7 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags.",
         id = "karlofduty.toggletag",
-        version = "1.0.0",
+        version = "1.0.1",
         SmodMajor = 3,
         SmodMinor = 1,
         SmodRevision = 19
