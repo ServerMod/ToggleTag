@@ -227,6 +227,11 @@ namespace ToggleTag
                 ev.Player.HideTag(true);
                 plugin.Info("Tag hidden for " + ev.Player.Name);
             }
+            else
+            {
+                ev.Player.HideTag(false);
+                plugin.Info("Tag shown for " + ev.Player.Name);
+            }
         }
     }
 
