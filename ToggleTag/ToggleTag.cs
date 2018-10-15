@@ -18,9 +18,9 @@ namespace ToggleTag
     [PluginDetails(
         author = "Karl Essinger",
         name = "ToggleTag",
-        description = "Persistant toggeling of role tags.",
+        description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.0.1",
+        version = "1.0.2",
         SmodMajor = 3,
         SmodMinor = 1,
         SmodRevision = 19
@@ -28,6 +28,13 @@ namespace ToggleTag
     public class ToggleTag : Plugin
     {
         public HashSet<string> tagsToggled;
+        public HashSet<string> overwatchToggled;
+
+        private readonly string defaultConfig =
+        "{\n"                       +
+        "    \"tags\": [],\n"       +
+        "    \"overwatch\": []\n"   +
+        "}";
 
         public override void OnDisable()
         {
@@ -38,10 +45,13 @@ namespace ToggleTag
         {
             if(!File.Exists(FileManager.AppFolder + "toggletag.json"))
             {
-                File.WriteAllText(FileManager.AppFolder + "toggletag.json", "[]");
+                File.WriteAllText(FileManager.AppFolder + "toggletag.json", defaultConfig);
             }
-            JArray jsonObject = JArray.Parse(File.ReadAllText(FileManager.AppFolder + "toggletag.json"));
-            tagsToggled = new HashSet<string>(jsonObject.Values<string>());
+            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.AppFolder + "toggletag.json"));
+
+
+            tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
+            overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
         }
         
         public override void Register()
@@ -56,12 +66,21 @@ namespace ToggleTag
         {
             // Save the state to file
             StringBuilder builder = new StringBuilder();
-            builder.Append("[\n");
+            builder.Append("{\n");
+            builder.Append("    \"tags\":\n");
+            builder.Append("    [\n");
             foreach (string line in tagsToggled)
             {
-                builder.Append("\"" + line + "\"," + "\n");
+                builder.Append("        \"" + line + "\"," + "\n");
             }
-            builder.Append("]");
+            builder.Append("    ],\n");
+            builder.Append("    \"overwatch\":\n");
+            builder.Append("    [\n");
+            foreach (string line in overwatchToggled)
+            {
+                builder.Append("        \"" + line + "\"," + "\n");
+            }
+            builder.Append("    ]\n}");
             File.WriteAllText(FileManager.AppFolder + "toggletag.json", builder.ToString());
         }
 
@@ -225,13 +244,13 @@ namespace ToggleTag
             if(plugin.tagsToggled.Contains(ev.Player.SteamId))
             {
                 ev.Player.HideTag(true);
-                plugin.Info("Tag hidden for " + ev.Player.Name);
             }
             else
             {
                 ev.Player.HideTag(false);
-                plugin.Info("Tag shown for " + ev.Player.Name);
             }
+
+            ev.Player.OverwatchMode = plugin.overwatchToggled.Contains(ev.Player.SteamId);
         }
     }
 
@@ -245,13 +264,13 @@ namespace ToggleTag
         public void OnAdminQuery(AdminQueryEvent ev)
         {
             // Check if user or console command
-            if(ev.Admin == null || ev.Admin.SteamId == null)
+            if (ev.Query == "REQUEST_DATA PLAYER_LIST SILENT" || ev.Admin == null || ev.Admin.SteamId == null)
             {
                 return;
             }
 
             // Check normal version of command
-            if(ev.Query == "hidetag")
+            if (ev.Query == "hidetag")
             {
                 plugin.tagsToggled.Add(ev.Admin.SteamId);
                 plugin.SaveTagsToFile();
@@ -259,6 +278,20 @@ namespace ToggleTag
             else if (ev.Query == "showtag")
             {
                 plugin.tagsToggled.Remove(ev.Admin.SteamId);
+                plugin.SaveTagsToFile();
+            }
+
+            // Check overwatch command
+            else if (ev.Query.Split(' ')[0] == "overwatch" && ev.Query.Split(' ')[1] == ev.Admin.PlayerId.ToString() + ".")
+            {
+                if(ev.Query.Split(' ')[2] == "0")
+                {
+                    plugin.overwatchToggled.Remove(ev.Admin.SteamId);
+                }
+                else
+                {
+                    plugin.overwatchToggled.Add(ev.Admin.SteamId);
+                }
                 plugin.SaveTagsToFile();
             }
         }
