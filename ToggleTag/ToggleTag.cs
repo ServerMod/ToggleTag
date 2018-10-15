@@ -23,7 +23,7 @@ namespace ToggleTag
         version = "1.0.0",
         SmodMajor = 3,
         SmodMinor = 1,
-        SmodRevision = 18
+        SmodRevision = 19
     )]
     public class ToggleTag : Plugin
     {
