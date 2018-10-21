@@ -20,7 +20,7 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.0",
+        version = "1.1.1",
         SmodMajor = 3,
         SmodMinor = 1,
         SmodRevision = 19
@@ -43,12 +43,16 @@ namespace ToggleTag
 
         public override void OnEnable()
         {
-            if(!File.Exists(FileManager.AppFolder + "toggletag.json"))
+            if (!Directory.Exists(FileManager.AppFolder + "ToggleTag"))
             {
-                File.WriteAllText(FileManager.AppFolder + "toggletag.json", defaultConfig);
+                Directory.CreateDirectory(FileManager.AppFolder + "ToggleTag");
             }
-            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.AppFolder + "toggletag.json"));
 
+            if (!File.Exists(FileManager.AppFolder + "ToggleTag/data.json"))
+            {
+                File.WriteAllText(FileManager.AppFolder + "ToggleTag/data.json", defaultConfig);
+            }
+            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.AppFolder + "ToggleTag/data.json"));
 
             tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
             overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
@@ -81,7 +85,7 @@ namespace ToggleTag
                 builder.Append("        \"" + line + "\"," + "\n");
             }
             builder.Append("    ]\n}");
-            File.WriteAllText(FileManager.AppFolder + "toggletag.json", builder.ToString());
+            File.WriteAllText(FileManager.AppFolder + "ToggleTag/data.json", builder.ToString());
         }
 
         public static bool IsPossibleSteamID(string steamID)
