@@ -20,10 +20,10 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.1",
+        version = "1.1.2",
         SmodMajor = 3,
         SmodMinor = 1,
-        SmodRevision = 19
+        SmodRevision = 21
     )]
     public class ToggleTag : Plugin
     {
@@ -43,16 +43,16 @@ namespace ToggleTag
 
         public override void OnEnable()
         {
-            if (!Directory.Exists(FileManager.AppFolder + "ToggleTag"))
+            if (!Directory.Exists(FileManager.GetAppFolder() + "ToggleTag"))
             {
-                Directory.CreateDirectory(FileManager.AppFolder + "ToggleTag");
+                Directory.CreateDirectory(FileManager.GetAppFolder() + "ToggleTag");
             }
 
-            if (!File.Exists(FileManager.AppFolder + "ToggleTag/data.json"))
+            if (!File.Exists(FileManager.GetAppFolder() + "ToggleTag/data.json"))
             {
-                File.WriteAllText(FileManager.AppFolder + "ToggleTag/data.json", defaultConfig);
+                File.WriteAllText(FileManager.GetAppFolder() + "ToggleTag/data.json", defaultConfig);
             }
-            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.AppFolder + "ToggleTag/data.json"));
+            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder() + "ToggleTag/data.json"));
 
             tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
             overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
@@ -85,7 +85,7 @@ namespace ToggleTag
                 builder.Append("        \"" + line + "\"," + "\n");
             }
             builder.Append("    ]\n}");
-            File.WriteAllText(FileManager.AppFolder + "ToggleTag/data.json", builder.ToString());
+            File.WriteAllText(FileManager.GetAppFolder() + "ToggleTag/data.json", builder.ToString());
         }
 
         public static bool IsPossibleSteamID(string steamID)
