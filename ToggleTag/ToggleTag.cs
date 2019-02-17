@@ -20,9 +20,9 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.2-B",
+        version = "1.1.3",
         SmodMajor = 3,
-        SmodMinor = 2,
+        SmodMinor = 3,
         SmodRevision = 0
     )]
     public class ToggleTag : Plugin
