@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ using Smod2.Events;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace ToggleTag
 {
@@ -43,21 +44,27 @@ namespace ToggleTag
 
         public override void OnEnable()
         {
-            if (!Directory.Exists(FileManager.GetAppFolder() + "ToggleTag"))
-            {
-                Directory.CreateDirectory(FileManager.GetAppFolder() + "ToggleTag");
+			new Task(async () =>
+			{
+				await Task.Delay(5000);
 				RegisterDefaultPermission("toggletag.savetag");
                 RegisterDefaultPermission("toggletag.saveoverwatch");
+                if (!Directory.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag"))
+                {
+                    Directory.CreateDirectory(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag");
+                }
+            
+                if (!File.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"))
+                {
+                    File.WriteAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json", defaultConfig);
+                }
+                JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"));
 
-            if (!File.Exists(FileManager.GetAppFolder() + "ToggleTag/data.json"))
-            {
-                File.WriteAllText(FileManager.GetAppFolder() + "ToggleTag/data.json", defaultConfig);
-            }
-            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder() + "ToggleTag/data.json"));
-
-            tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
-            overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
-        }
+                tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
+                overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
+                this.Info("Toggletag enabled." + GetConfigBool("toggletag_global"));
+			}).Start();
+		}
         
         public override void Register()
         {
@@ -65,6 +72,7 @@ namespace ToggleTag
             this.AddEventHandlers(new TagCommandHandler(this), Priority.High);
             this.AddCommand("console_hidetag", new HideTagCommand(this));
             this.AddCommand("console_showtag", new ShowTagCommand(this));
+            this.AddConfig(new Smod2.Config.ConfigSetting("toggletag_global", false, Smod2.Config.SettingType.BOOL, true, "Whether or not to use the global config dir to save data, default is false"));
         }
 
         public void SaveTagsToFile()
