@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,7 +46,8 @@ namespace ToggleTag
             if (!Directory.Exists(FileManager.GetAppFolder() + "ToggleTag"))
             {
                 Directory.CreateDirectory(FileManager.GetAppFolder() + "ToggleTag");
-            }
+				RegisterDefaultPermission("toggletag.savetag");
+                RegisterDefaultPermission("toggletag.saveoverwatch");
 
             if (!File.Exists(FileManager.GetAppFolder() + "ToggleTag/data.json"))
             {
@@ -273,31 +274,40 @@ namespace ToggleTag
                 return;
             }
 
-            // Check normal version of command
-            if (ev.Query == "hidetag")
+            if (ev.Admin.HasPermission("toggletag.savetag"))
             {
-                plugin.tagsToggled.Add(ev.Admin.SteamId);
-                plugin.SaveTagsToFile();
-            }
-            else if (ev.Query == "showtag")
-            {
-                plugin.tagsToggled.Remove(ev.Admin.SteamId);
-                plugin.SaveTagsToFile();
+                // Check normal version of command
+                if (ev.Query == "hidetag")
+                {
+                    plugin.tagsToggled.Add(ev.Admin.SteamId);
+                    plugin.SaveTagsToFile();
+                    return;
+                }
+                else if (ev.Query == "showtag")
+                {
+                    plugin.tagsToggled.Remove(ev.Admin.SteamId);
+                    plugin.SaveTagsToFile();
+                    return;
+                }
             }
 
-            // Check overwatch command
-            else if (ev.Query.Split(' ')[0] == "overwatch" && ev.Query.Split(' ')[1] == ev.Admin.PlayerId.ToString() + ".")
+            if(ev.Admin.HasPermission("toggletag.saveoverwatch"))
             {
-                if(ev.Query.Split(' ')[2] == "0")
+                // Check overwatch command
+                if (ev.Query.Split(' ')[0] == "overwatch" && ev.Query.Split(' ')[1] == ev.Admin.PlayerId.ToString() + ".")
                 {
-                    plugin.overwatchToggled.Remove(ev.Admin.SteamId);
+                    if(ev.Query.Split(' ')[2] == "0")
+                    {
+                        plugin.overwatchToggled.Remove(ev.Admin.SteamId);
+                    }
+                    else
+                    {
+                        plugin.overwatchToggled.Add(ev.Admin.SteamId);
+                    }
+                    plugin.SaveTagsToFile();
                 }
-                else
-                {
-                    plugin.overwatchToggled.Add(ev.Admin.SteamId);
-                }
-                plugin.SaveTagsToFile();
             }
+
         }
     }
 }
