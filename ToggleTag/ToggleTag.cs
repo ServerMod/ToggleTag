@@ -62,7 +62,7 @@ namespace ToggleTag
 
                 tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
                 overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
-                this.Info("Toggletag enabled." + GetConfigBool("toggletag_global"));
+                this.Info("Toggletag enabled.");
 			}).Start();
 		}
         
