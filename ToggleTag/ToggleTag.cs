@@ -13,6 +13,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using Smod2.Config;
 
 namespace ToggleTag
 {
@@ -47,8 +48,8 @@ namespace ToggleTag
 			new Task(async () =>
 			{
 				await Task.Delay(5000);
-				RegisterDefaultPermission("toggletag.savetag");
-                RegisterDefaultPermission("toggletag.saveoverwatch");
+				AddDefaultPermission("toggletag.savetag");
+                AddDefaultPermission("toggletag.saveoverwatch");
                 if (!Directory.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag"))
                 {
                     Directory.CreateDirectory(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag");
@@ -72,7 +73,7 @@ namespace ToggleTag
             this.AddEventHandlers(new TagCommandHandler(this), Priority.High);
             this.AddCommand("console_hidetag", new HideTagCommand(this));
             this.AddCommand("console_showtag", new ShowTagCommand(this));
-            this.AddConfig(new Smod2.Config.ConfigSetting("toggletag_global", false, Smod2.Config.SettingType.BOOL, true, "Whether or not to use the global config dir to save data, default is false"));
+            this.AddConfig(new ConfigSetting("toggletag_global", false, true, "Whether or not to use the global config dir to save data, default is false"));
         }
 
         public void SaveTagsToFile()
