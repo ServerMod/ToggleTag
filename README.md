@@ -16,3 +16,9 @@ Extract the included zip and place the contents in `sm_plugins`.
 `console_showtag <steamid>`
 
 These are not meant to be used directly, they just exist for SCPDiscord integration. You can instead just use the default `hidetag` and `showtag` commands.
+
+## Permissions
+
+`toggletag.savetag` - Allows players to have their tag status saved, given by default.
+
+`toggletag.saveoverwatch` - Allows players to have their overwatch status saved, given by default.
