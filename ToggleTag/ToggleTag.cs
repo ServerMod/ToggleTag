@@ -24,7 +24,7 @@ namespace ToggleTag
         id = "karlofduty.toggletag",
         version = "1.1.4",
         SmodMajor = 3,
-        SmodMinor = 3,
+        SmodMinor = 4,
         SmodRevision = 0
     )]
     public class ToggleTag : Plugin
@@ -45,26 +45,21 @@ namespace ToggleTag
 
         public override void OnEnable()
         {
-			new Task(async () =>
-			{
-				await Task.Delay(5000);
-				AddDefaultPermission("toggletag.savetag");
-                AddDefaultPermission("toggletag.saveoverwatch");
-                if (!Directory.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag"))
-                {
-                    Directory.CreateDirectory(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag");
-                }
+			AddDefaultPermission("toggletag.savetag");
+            AddDefaultPermission("toggletag.saveoverwatch");
+            if (!Directory.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag"))
+            {
+                Directory.CreateDirectory(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag");
+            }
             
-                if (!File.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"))
-                {
-                    File.WriteAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json", defaultConfig);
-                }
-                JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"));
+            if (!File.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"))
+            {
+                File.WriteAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json", defaultConfig);
+            }
+            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"));
 
-                tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
-                overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
-                this.Info("Toggletag enabled.");
-			}).Start();
+            tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
+            overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
 		}
         
         public override void Register()
