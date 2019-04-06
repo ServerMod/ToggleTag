@@ -5,6 +5,8 @@ Requires you to enable the text based admin commands or use scpdiscord.
 
 Now also persistently toggles overwatch.
 
+Has a single config entry, `toggletag_global` which decides whether the plugin files are placed in the global or local config directory.
+
 ## Installation
 
 Extract the included zip and place the contents in `sm_plugins`.
