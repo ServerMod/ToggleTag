@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 
 using Smod2;
@@ -10,9 +8,7 @@ using Smod2.EventHandlers;
 using Smod2.Events;
 
 using System.IO;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 using Smod2.Config;
 
 namespace ToggleTag
@@ -22,9 +18,9 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.4",
+        version = "1.1.5",
         SmodMajor = 3,
-        SmodMinor = 4,
+        SmodMinor = 7,
         SmodRevision = 0
     )]
     public class ToggleTag : Plugin
@@ -47,16 +43,16 @@ namespace ToggleTag
         {
 			AddDefaultPermission("toggletag.savetag");
             AddDefaultPermission("toggletag.saveoverwatch");
-            if (!Directory.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag"))
+            if (!Directory.Exists(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag"))
             {
-                Directory.CreateDirectory(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag");
+                Directory.CreateDirectory(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag");
             }
             
-            if (!File.Exists(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"))
+            if (!File.Exists(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag/data.json"))
             {
-                File.WriteAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json", defaultConfig);
+                File.WriteAllText(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag/data.json", defaultConfig);
             }
-            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder(GetConfigBool("toggletag_global")) + "ToggleTag/data.json"));
+            JToken jsonObject = JToken.Parse(File.ReadAllText(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag/data.json"));
 
             tagsToggled = new HashSet<string>(jsonObject.SelectToken("tags").Values<string>());
             overwatchToggled = new HashSet<string>(jsonObject.SelectToken("overwatch").Values<string>());
@@ -90,24 +86,7 @@ namespace ToggleTag
                 builder.Append("        \"" + line + "\"," + "\n");
             }
             builder.Append("    ]\n}");
-            File.WriteAllText(FileManager.GetAppFolder() + "ToggleTag/data.json", builder.ToString());
-        }
-
-        public static bool IsPossibleSteamID(string steamID)
-        {
-            return (steamID.Length == 17 && long.TryParse(steamID, out long n));
-        }
-
-        public Smod2.API.Player GetPlayer(string steamID)
-        {
-            foreach (Smod2.API.Player player in this.pluginManager.Server.GetPlayers())
-            {
-                if (player.SteamId == steamID)
-                {
-                    return player;
-                }
-            }
-            return null;
+            File.WriteAllText(FileManager.GetAppFolder(true, !GetConfigBool("toggletag_global")) + "ToggleTag/data.json", builder.ToString());
         }
     }
 
@@ -126,53 +105,45 @@ namespace ToggleTag
 
         public string GetUsage()
         {
-            return "console_hidetag <steamid>";
+            return "console_hidetag <userid>";
         }
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            // Check if SteamID is included
+            // Check if userid is included
             if (args.Length > 0)
             {
-                // Check if valid SteamID
-                if (ToggleTag.IsPossibleSteamID(args[0]))
+                // Check if already visible
+                if (plugin.tagsToggled.Add(args[0]))
                 {
-                    // Check if already visible
-                    if (plugin.tagsToggled.Add(args[0]))
+                    // Gets the player name for the feedback and sets the playeer's tag status if they are online
+                    string name = "";
+                    Smod2.API.Player player = plugin.Server.GetPlayers(args[0])?[0];
+                    if (player != null)
                     {
-                        // Gets the player name for the feedback and sets the playeer's tag status if they are online
-                        string name = "";
-                        Smod2.API.Player player = plugin.GetPlayer(args[0]);
-                        if (player != null)
-                        {
-                            player.HideTag(true);
-                            name = player.Name;
-                        }
-                        else
-                        {
-                            name = "offline player";
-                        }
-
-                        plugin.SaveTagsToFile();
-                        return new string[] { "Tag hidden of " + name + "." };
+                        player.HideTag(true);
+                        name = player.Name;
                     }
                     else
                     {
-                        // Still set the tag just in case it's status is not synced with the plugin's status for some reason
-                        Smod2.API.Player player = plugin.GetPlayer(args[0]);
-                        if (player != null)
-                        {
-                            player.HideTag(true);
-                        }
-                        return new string[] { "Tag was alreeady hidden." };
+                        name = "offline player";
                     }
+
+                    plugin.SaveTagsToFile();
+                    return new[] { "Tag hidden of " + name + "." };
                 }
                 else
                 {
-                    return new string[] { "Invalid SteamID provided: '" + args[0] + "'." };
+                    // Still set the tag just in case it's status is not synced with the plugin's status for some reason
+                    Smod2.API.Player player = plugin.Server.GetPlayers(args[0])?[0];
+					if (player != null)
+                    {
+                        player.HideTag(true);
+                    }
+                    return new[] { "Tag was already hidden." };
                 }
             }
-            return new string[] { "Not enough arguments provided. 'console_hidetag <steamid>'" };
+            return new[] { "Not enough arguments provided. 'console_hidetag <userid>'" };
         }
     }
 
@@ -191,53 +162,42 @@ namespace ToggleTag
 
         public string GetUsage()
         {
-            return "console_showtag <steamid>";
+            return "console_showtag <userid>";
         }
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            // Check if SteamID is included
+            // Check if userid is included
             if (args.Length > 0)
             {
-                // Check if valid SteamID
-                if (ToggleTag.IsPossibleSteamID(args[0]))
+                // Check if already visible
+                if(plugin.tagsToggled.Remove(args[0]))
                 {
-                    // Check if already visible
-                    if(plugin.tagsToggled.Remove(args[0]))
+                    // Gets the player name for the feedback and sets the playeer's tag status if they are online
+                    string name = "";
+                    Smod2.API.Player player = plugin.Server.GetPlayers(args[0])?[0];
+					if (player != null)
                     {
-                        // Gets the player name for the feedback and sets the playeer's tag status if they are online
-                        string name = "";
-                        Smod2.API.Player player = plugin.GetPlayer(args[0]);
-                        if(player != null)
-                        {
-                            player.HideTag(false);
-                            name = player.Name;
-                        }
-                        else
-                        {
-                            name = "offline player";
-                        }
-
-                        plugin.SaveTagsToFile();
-                        return new string[] { "Tag revealed of " + name + "."};
+                        player.HideTag(false);
+                        name = player.Name;
                     }
                     else
                     {
-                        // Still set the tag just in case it's status is not synced with the plugin's status for some reason
-                        Smod2.API.Player player = plugin.GetPlayer(args[0]);
-                        if (player != null)
-                        {
-                            player.HideTag(false);
-                        }
-                        return new string[] { "Tag was alreeady revealed." };
+                        name = "offline player";
                     }
+
+                    plugin.SaveTagsToFile();
+                    return new[] { "Tag revealed of " + name + "."};
                 }
                 else
                 {
-                    return new string[] { "Invalid SteamID provided: '" + args[0] + "'." };
+                    // Still set the tag just in case it's status is not synced with the plugin's status for some reason
+                    Smod2.API.Player player = plugin.Server.GetPlayers(args[0])?[0];
+					player?.HideTag(false);
+                    return new[] { "Tag was already revealed." };
                 }
             }
-            return new string[] { "Not enough arguments provided. 'console_showtag <steamid>'" };
+            return new[] { "Not enough arguments provided. 'console_showtag <userid>'" };
         }
     }
 
@@ -250,7 +210,7 @@ namespace ToggleTag
         }
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
-            if(plugin.tagsToggled.Contains(ev.Player.SteamId))
+            if(plugin.tagsToggled.Contains(ev.Player.UserId))
             {
                 ev.Player.HideTag(true);
             }
@@ -259,7 +219,7 @@ namespace ToggleTag
                 ev.Player.HideTag(false);
             }
 
-            ev.Player.OverwatchMode = plugin.overwatchToggled.Contains(ev.Player.SteamId);
+            ev.Player.OverwatchMode = plugin.overwatchToggled.Contains(ev.Player.UserId);
         }
     }
 
@@ -273,7 +233,7 @@ namespace ToggleTag
         public void OnAdminQuery(AdminQueryEvent ev)
         {
             // Check if user or console command
-            if (ev.Query == "REQUEST_DATA PLAYER_LIST SILENT" || ev.Admin == null || ev.Admin.SteamId == null)
+            if (ev.Query == "REQUEST_DATA PLAYER_LIST SILENT" || ev.Admin?.UserId == null)
             {
                 return;
             }
@@ -283,13 +243,13 @@ namespace ToggleTag
                 // Check normal version of command
                 if (ev.Query == "hidetag")
                 {
-                    plugin.tagsToggled.Add(ev.Admin.SteamId);
+                    plugin.tagsToggled.Add(ev.Admin.UserId);
                     plugin.SaveTagsToFile();
                     return;
                 }
                 else if (ev.Query == "showtag")
                 {
-                    plugin.tagsToggled.Remove(ev.Admin.SteamId);
+                    plugin.tagsToggled.Remove(ev.Admin.UserId);
                     plugin.SaveTagsToFile();
                     return;
                 }
@@ -302,11 +262,11 @@ namespace ToggleTag
                 {
                     if(ev.Query.Split(' ')[2] == "0")
                     {
-                        plugin.overwatchToggled.Remove(ev.Admin.SteamId);
+                        plugin.overwatchToggled.Remove(ev.Admin.UserId);
                     }
                     else
                     {
-                        plugin.overwatchToggled.Add(ev.Admin.SteamId);
+                        plugin.overwatchToggled.Add(ev.Admin.UserId);
                     }
                     plugin.SaveTagsToFile();
                 }
