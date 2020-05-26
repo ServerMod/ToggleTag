@@ -20,7 +20,6 @@ pipeline {
     stage('Package') {
       steps {
         sh 'mv ToggleTag/bin/ToggleTag.dll Plugin/'
-        sh 'mv ToggleTag/bin/YamlDotNet.dll Plugin/dependencies'
         sh 'mv ToggleTag/bin/Newtonsoft.Json.dll Plugin/dependencies'
       }
     }
