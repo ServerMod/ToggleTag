@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
 
 using Smod2;
@@ -18,9 +18,9 @@ namespace ToggleTag
         name = "ToggleTag",
         description = "Persistant toggeling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.5",
+        version = "1.1.6",
         SmodMajor = 3,
-        SmodMinor = 7,
+        SmodMinor = 8,
         SmodRevision = 0
     )]
     public class ToggleTag : Plugin
