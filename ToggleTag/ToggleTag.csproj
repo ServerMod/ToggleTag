@@ -60,10 +60,10 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\Assembly-CSharp.dll" />
+    <Content Include="lib\Newtonsoft.Json.dll" />
+    <Content Include="lib\Smod2.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /y "ToggleTag.dll" "C:\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\sm_plugins\"
-mkdir "C:\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\sm_plugins\dependencies"
-copy /y "Newtonsoft.Json.dll" "C:\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\sm_plugins\dependencies\"</PostBuildEvent>
-  </PropertyGroup>
 </Project>

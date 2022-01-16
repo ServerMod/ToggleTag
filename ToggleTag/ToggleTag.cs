@@ -16,11 +16,11 @@ namespace ToggleTag
     [PluginDetails(
         author = "Karl Essinger",
         name = "ToggleTag",
-        description = "Persistant toggeling of role tags and overwatch.",
+        description = "Persistant toggling of role tags and overwatch.",
         id = "karlofduty.toggletag",
-        version = "1.1.6",
+        version = "1.1.7",
         SmodMajor = 3,
-        SmodMinor = 8,
+        SmodMinor = 10,
         SmodRevision = 0
     )]
     public class ToggleTag : Plugin
@@ -210,7 +210,7 @@ namespace ToggleTag
         }
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
-            if(plugin.tagsToggled.Contains(ev.Player.UserId))
+            if(plugin.tagsToggled.Contains(ev.Player.UserID))
             {
                 ev.Player.HideTag(true);
             }
@@ -219,7 +219,7 @@ namespace ToggleTag
                 ev.Player.HideTag(false);
             }
 
-            ev.Player.OverwatchMode = plugin.overwatchToggled.Contains(ev.Player.UserId);
+            ev.Player.OverwatchMode = plugin.overwatchToggled.Contains(ev.Player.UserID);
         }
     }
 
@@ -233,7 +233,7 @@ namespace ToggleTag
         public void OnAdminQuery(AdminQueryEvent ev)
         {
             // Check if user or console command
-            if (ev.Query == "REQUEST_DATA PLAYER_LIST SILENT" || ev.Admin?.UserId == null)
+            if (ev.Query == "REQUEST_DATA PLAYER_LIST SILENT" || ev.Admin?.UserID == null)
             {
                 return;
             }
@@ -243,13 +243,13 @@ namespace ToggleTag
                 // Check normal version of command
                 if (ev.Query == "hidetag")
                 {
-                    plugin.tagsToggled.Add(ev.Admin.UserId);
+                    plugin.tagsToggled.Add(ev.Admin.UserID);
                     plugin.SaveTagsToFile();
                     return;
                 }
                 else if (ev.Query == "showtag")
                 {
-                    plugin.tagsToggled.Remove(ev.Admin.UserId);
+                    plugin.tagsToggled.Remove(ev.Admin.UserID);
                     plugin.SaveTagsToFile();
                     return;
                 }
@@ -258,15 +258,15 @@ namespace ToggleTag
             if(ev.Admin.HasPermission("toggletag.saveoverwatch"))
             {
                 // Check overwatch command
-                if (ev.Query.Split(' ')[0] == "overwatch" && ev.Query.Split(' ')[1] == ev.Admin.PlayerId.ToString() + ".")
+                if (ev.Query.Split(' ')[0] == "overwatch" && ev.Query.Split(' ')[1] == ev.Admin.PlayerID.ToString() + ".")
                 {
                     if(ev.Query.Split(' ')[2] == "0")
                     {
-                        plugin.overwatchToggled.Remove(ev.Admin.UserId);
+                        plugin.overwatchToggled.Remove(ev.Admin.UserID);
                     }
                     else
                     {
-                        plugin.overwatchToggled.Add(ev.Admin.UserId);
+                        plugin.overwatchToggled.Add(ev.Admin.UserID);
                     }
                     plugin.SaveTagsToFile();
                 }
