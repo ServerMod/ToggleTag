@@ -60,8 +60,8 @@ namespace ToggleTag
         
         public override void Register()
         {
-            this.AddEventHandlers(new PlayerJoinHandler(this), Priority.High);
-            this.AddEventHandlers(new TagCommandHandler(this), Priority.High);
+            this.AddEventHandlers(new PlayerJoinHandler(this), Priority.LATE);
+            this.AddEventHandlers(new TagCommandHandler(this), Priority.LATE);
             this.AddCommand("console_hidetag", new HideTagCommand(this));
             this.AddCommand("console_showtag", new ShowTagCommand(this));
             this.AddConfig(new ConfigSetting("toggletag_global", false, true, "Whether or not to use the global config dir to save data, default is false"));
