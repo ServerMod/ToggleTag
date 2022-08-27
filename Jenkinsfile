@@ -9,10 +9,10 @@ pipeline {
     stage('Use upstream Smod') {
         when { triggeredBy 'BuildUpstreamCause' }
         steps {
-            sh ('rm SCPDiscordPlugin/lib/Assembly-CSharp.dll')
-            sh ('rm SCPDiscordPlugin/lib/Smod2.dll')
-            sh ('ln -s $SCPSL_LIBS/Assembly-CSharp.dll SCPDiscordPlugin/lib/Assembly-CSharp.dll')
-            sh ('ln -s $SCPSL_LIBS/Smod2.dll SCPDiscordPlugin/lib/Smod2.dll')
+            sh ('rm ToggleTag/lib/Assembly-CSharp.dll')
+            sh ('rm ToggleTag/lib/Smod2.dll')
+            sh ('ln -s $SCPSL_LIBS/Assembly-CSharp.dll ToggleTag/lib/Assembly-CSharp.dll')
+            sh ('ln -s $SCPSL_LIBS/Smod2.dll ToggleTag/lib/Smod2.dll')
         }
     }
     stage('Build') {
