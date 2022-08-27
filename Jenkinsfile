@@ -6,6 +6,15 @@ pipeline {
         sh 'nuget restore ToggleTag.sln'
       }
     }
+    stage('Use upstream Smod') {
+        when { triggeredBy 'BuildUpstreamCause' }
+        steps {
+            sh ('rm SCPDiscordPlugin/lib/Assembly-CSharp.dll')
+            sh ('rm SCPDiscordPlugin/lib/Smod2.dll')
+            sh ('ln -s $SCPSL_LIBS/Assembly-CSharp.dll SCPDiscordPlugin/lib/Assembly-CSharp.dll')
+            sh ('ln -s $SCPSL_LIBS/Smod2.dll SCPDiscordPlugin/lib/Smod2.dll')
+        }
+    }
     stage('Build') {
       steps {
         sh 'msbuild ToggleTag/ToggleTag.csproj -restore -p:PostBuildEvent='
@@ -24,10 +33,18 @@ pipeline {
       }
     }
     stage('Archive') {
-      steps {
-        sh 'zip -r ToggleTag.zip Plugin'
-        archiveArtifacts(artifacts: 'ToggleTag.zip', onlyIfSuccessful: true)
-      }
+        when { not { triggeredBy 'BuildUpstreamCause' } }
+        steps {
+            sh 'zip -r ToggleTag.zip Plugin/*'
+            archiveArtifacts(artifacts: 'ToggleTag.zip', onlyIfSuccessful: true)
+        }
+    }
+    stage('Send upstream') {
+        when { triggeredBy 'BuildUpstreamCause' }
+        steps {
+            sh 'zip -r ToggleTag.zip Plugin/*'
+            sh 'cp ToggleTag.zip $PLUGIN_BUILDER_ARTIFACT_DIR'
+        }
     }
   }
 }
